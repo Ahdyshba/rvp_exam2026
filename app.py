@@ -13,7 +13,7 @@ from io import StringIO
 from datetime import datetime, timedelta
 
 app = Flask(__name__)
-app.config['SECRET_KEY'] = 'your-secret-key-here'
+app.config['SECRET_KEY'] = os.environ.get('SECRET_KEY', 'your-secret-key-here')
 
 DATABASE_URL = os.environ.get("DATABASE_URL", "")
 if DATABASE_URL and DATABASE_URL.startswith("postgres://"):
