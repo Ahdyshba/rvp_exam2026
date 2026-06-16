@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>Рецензия на книгу "{{ book.title }}"</h1>
+<form method="post">
+    {{ form.hidden_tag() }}
+    <div class="mb-3">
+        {{ form.rating.label(class="form-label") }}
+        {{ form.rating(class="form-select") }}
+    </div>
+    <div class="mb-3">
+        {{ form.text.label(class="form-label") }}
+        {{ form.text(class="form-control", rows=5) }}
+    </div>
+    <button type="submit" class="btn btn-primary">Отправить</button>
+    <a href="{{ url_for('book_detail', book_id=book.id) }}" class="btn btn-secondary">Отмена</a>
+</form>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    const easyMDE = new EasyMDE({
+        element: document.getElementById('text'),
+        spellChecker: false,
+        placeholder: 'Введите текст рецензии в формате Markdown...'
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ book.title }}</h1>
+<div class="row">
+    <div class="col-md-4">
+        {% if book.cover %}
+            <img src="{{ url_for('static', filename='uploads/' + book.cover.filename) }}" class="img-fluid" alt="{{ book.title }}">
+        {% else %}
+            <div class="bg-light text-center py-5 border">Нет обложки</div>
+        {% endif %}
+    </div>
+    <div class="col-md-8">
+        <p><strong>Автор:</strong> {{ book.author }}</p>
+        <p><strong>Год:</strong> {{ book.year }}</p>
+        <p><strong>Издательство:</strong> {{ book.publisher }}</p>
+        <p><strong>Страниц:</strong> {{ book.pages }}</p>
+        <p><strong>Жанры:</strong> {{ book.genres|map(attribute='name')|join(', ') }}</p>
+        <p><strong>Средняя оценка:</strong> 
+            {% if book.reviews %}
+                {{ (book.reviews|sum(attribute='rating') / book.reviews|length)|round(1) }}
+            {% else %}
+                нет оценок
+            {% endif %}
+        </p>
+        <p><strong>Описание:</strong> {{ book.description|markdown }}</p>
+    </div>
+</div>
+
+<h3 class="mt-4">Рецензии</h3>
+{% for review in book.reviews %}
+    <div class="card mb-2">
+        <div class="card-body">
+            <h6>{{ review.user.first_name }} {{ review.user.last_name }}</h6>
+            <p>Оценка: 
+                {% for i in range(5, 0, -1) %}
+                    {% if i <= review.rating %}
+                        ⭐
+                    {% else %}
+                        ☆
+                    {% endif %}
+                {% endfor %}
+                ({{ review.rating }}/5)
+            </p>
+            <p>{{ review.text|markdown }}</p>
+            <small class="text-muted">{{ review.created_at.strftime('%d.%m.%Y %H:%M') }}</small>
+        </div>
+    </div>
+{% else %}
+    <p class="text-muted">Пока нет рецензий. Будьте первым!</p>
+{% endfor %}
+
+{% if current_user.is_authenticated and current_user.role.name in ['user', 'moderator', 'admin'] %}
+    {% if not user_review %}
+        <a href="{{ url_for('add_review', book_id=book.id) }}" class="btn btn-primary mt-3">Написать рецензию</a>
+    {% else %}
+        <p class="mt-3 text-info">✅ Вы уже оставили рецензию на эту книгу</p>
+    {% endif %}
+{% endif %}
+{% endblock %}
